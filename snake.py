@@ -36,6 +36,7 @@ for i in range(START_LENGTH):
     bodystamp=snake.stamp()
     stamp_list.append(bodystamp)
 
+direction = 0
 UP_EDGE=250
 DOWN_EDGE=-250
 RIGHT_EDGE=400
@@ -56,25 +57,22 @@ RIGHT=3
 def up():
     global direction
     direction=UP
-    move_snake()
     print("You pressed the up key!")
 
 def left():
     global direction
     direction=LEFT
-    move_snake()
     print("You pressed the left key!")
 
 def down():
     global direction
     direction=DOWN
-    move_snake()
     print("You pressed the down key!")
 
 def right():
     global direction
     direction=RIGHT
-    move_snake()
+    
     print("You pressed the right key!")
 
 turtle.onkeypress(up,UP_ARROW)
@@ -90,7 +88,8 @@ def move_snake():
     my_pos=snake.pos()
     x_pos=my_pos[0]
     y_pos=my_pos[1]
-
+    
+    global direction
     if direction==RIGHT:
         snake.goto(x_pos+SQUARE_SIZE,y_pos)
         print("You moved right!")
@@ -103,18 +102,24 @@ def move_snake():
     elif direction==DOWN:
         snake.goto(x_pos,y_pos-SQUARE_SIZE)
         print("You moved down!")
-    turtle.ontimer(move_snake,TIME_STEP)
-
-
 
     my_pos=snake.pos()
     pos_list.append(my_pos)
     new_stamp=snake.stamp()
     stamp_list.append(new_stamp)
+
     old_stamp=stamp_list.pop(0)
-    #SPECIAL PLACE P.5
     snake.clearstamp(old_stamp)
     pos_list.pop(0)
+
+    global food_stamps, food_pos
+    if snake.pos() in food_pos:
+        food_ind=food_pos.index(snake.pos())
+        food.clearstamp(food_stamps[food_ind])
+        food_pos.pop(food_ind)
+        food_stamps.pop(food_ind)
+        print("You have eaten the food!")
+
     new_pos=snake.pos()
     new_x_pos=new_pos[0]
     new_y_pos=new_pos[1]
@@ -131,5 +136,36 @@ def move_snake():
     elif new_y_pos<=DOWN_EDGE:
         print("You hit the bottom edge! Game OVER!")
         quit()
+
+    turtle.ontimer(move_snake,TIME_STEP)
+
+turtle.register_shape("trash.gif")
+food=turtle.clone()
+food.shape("trash.gif")
+food_pos=[(100,100),(-100,100),(-100,-100),(100,-100)]
+food_stamps=[]
+
+move_snake()
+
+for num in food_pos:
     
-        
+    food.goto(num)
+
+    foodie_stamp=food.stamp()
+
+    food_stamps.append(foodie_stamp)
+    
+def make_food():
+    min_x=-int(SIZE_X/2/SQUARE_SIZE)+1
+    max_x=int(SIZE_X/2/SQUARESIZE)-1
+    min_y=-int(SIZE_Y/2/SQUARE_SIZE)-1
+    max_y=int(SIZE_y/2/SQUARE_SIZE)+1
+
+    food_x=random.randint(min_x,max_x)*SQUARE_SIZE
+    food_y=random.randint(min_y,max_y)*SQUARE_SIZE
+
+    while food!=food.clearstamp:
+        make_food(food_x,food_y)
+        food.goto(food_x,food_y)
+
+
